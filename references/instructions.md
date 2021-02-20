@@ -2,8 +2,6 @@
 
 Another phase down--you're almost halfway there!
 
-![awesome gif](figures/halfway-there.gif)
-
 This will be your first of several modeling projects.  In this case, your goal is to build a model that provides inferential insights into real-world housing data.
 
 ## BACKGROUND
