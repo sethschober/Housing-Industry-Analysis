@@ -37,3 +37,22 @@ def get_lookups(LUType, df_lookup):
     category = category.sort_values(by='LUItem')
     result = dict(zip(category.LUItem.str.strip(), category.LUDescription))
     return result
+
+
+# Strip leading and trailing spaces
+def strip_spaces(df):
+    for col in df.columns:
+        df[col] = df[col].str.strip()
+    return df
+
+
+# Remove *x* std deviations of data from an input
+def remove_extremes(data, devct):
+    data = pd.Series([float(num) for num in data])
+    cleaned = data.loc[data>0].copy()
+
+    std = cleaned.std()
+    med = cleaned.median()
+
+    cleaned = cleaned.loc[(cleaned > (med - std*devct)) & (cleaned < (med+std*devct))].copy() 
+    return cleaned
