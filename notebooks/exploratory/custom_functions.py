@@ -4,7 +4,8 @@ from sklearn.preprocessing import OneHotEncoder
 # One-hot encode data coming in as a series
 # Optional prefix added to each column name
 # Optionally input list of columns to use instead ('name_lookup')
-def one_hot(srs, prefix='x', name_lookup = False):
+from sklearn.preprocessing import OneHotEncoder
+def one_hot(srs, prefix=False, name_lookup = False):
     #from sklearn.preprocessing import OneHotEncoder
     #import pandas as pd
     
@@ -16,15 +17,28 @@ def one_hot(srs, prefix='x', name_lookup = False):
     if name_lookup == False:    
         names = ohe.get_feature_names()
         new_names = [prefix+'_'+x[3:] for x in names]
-        df.columns = new_names
-    else:
+        df.columns = new_names    
+    elif prefix == False:
         names = ohe.get_feature_names()
         codes = [x[3:] for x in names]
         new_names = [name_lookup[x] for x in codes]
         df.columns = new_names
+    else:
+        names = ohe.get_feature_names()
+        #new_names = [prefix+'_'+x[3:] for x in names]
+        #df.columns = new_names   
+
+        codes = [x[3:] for x in names]
+        new_names = [prefix+'_'+name_lookup[x] for x in codes]
+        df.columns = new_names
     
     for col in df.columns:
         df[col] = df[col].astype('int')
+    
+    
+    # THESE TWO LINES DON'T WORK -- SIMPLE FIX I IMAGINE
+    df.columns = pd.Series(list(df.columns)).replace(' ', '')
+    df.columns = pd.Series(list(df.columns)).replace('-', '')
     
     return df
 
