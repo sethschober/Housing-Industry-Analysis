@@ -37,8 +37,7 @@ def one_hot(srs, prefix=False, name_lookup = False):
     
     
     # THESE TWO LINES DON'T WORK -- SIMPLE FIX I IMAGINE
-    df.columns = pd.Series(list(df.columns)).replace(' ', '')
-    df.columns = pd.Series(list(df.columns)).replace('-', '')
+    df.columns = [x.replace(' ','').replace('-','') for x in df.columns]
     
     return df
 
