@@ -60,9 +60,9 @@ def strip_spaces(df):
 
 
 # Remove *x* std deviations of data from an input
-def remove_extremes(data, devct):
-    data = pd.Series([float(num) for num in data])
-    cleaned = data.loc[data>0].copy()
+def remove_extremes(df, col, devct):
+    df[col] = [float(num) for num in df[col]]
+    #cleaned = data.loc[data>0].copy()
 
     std = cleaned.std()
     med = cleaned.median()
