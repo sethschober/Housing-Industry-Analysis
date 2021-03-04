@@ -6,8 +6,6 @@ from sklearn.preprocessing import OneHotEncoder
 # Optionally input list of columns to use instead ('name_lookup')
 from sklearn.preprocessing import OneHotEncoder
 def one_hot(srs, prefix=False, name_lookup = False):
-    #from sklearn.preprocessing import OneHotEncoder
-    #import pandas as pd
     
     ohe = OneHotEncoder(sparse=False, drop='first')
     
@@ -35,8 +33,6 @@ def one_hot(srs, prefix=False, name_lookup = False):
     for col in df.columns:
         df[col] = df[col].astype('int')
     
-    
-    # THESE TWO LINES DON'T WORK -- SIMPLE FIX I IMAGINE
     df.columns = [x.replace(' ','').replace('-','') for x in df.columns]
     
     return df
