@@ -139,3 +139,4 @@ dmypy.json
 
 # NON-AUTOMATED ADDITIONS
 main.db
+data/processed/main.db
