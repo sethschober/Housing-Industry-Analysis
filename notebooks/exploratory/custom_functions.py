@@ -1,51 +1,20 @@
 import numpy as np
 import pandas as pd
 import seaborn as sns
+import sqlite3
 import statsmodels.api as sm
 
 from sklearn.preprocessing import OneHotEncoder
 from statsmodels.formula.api import ols
 
 
-# One-hot encode data coming in as a series
-# Optional prefix added to each column name
-# Optionally input list of columns to use instead ('name_lookup')
-from sklearn.preprocessing import OneHotEncoder
-def one_hot(srs, prefix=False, name_lookup = False):
-    
-    ohe = OneHotEncoder(sparse=False, drop='first')
-    
-    df = pd.DataFrame(srs)
-    df = pd.DataFrame(ohe.fit_transform(df))
-    
-    if name_lookup == False:    
-        names = ohe.get_feature_names()
-        new_names = [prefix+'_'+x[3:] for x in names]
-        df.columns = new_names    
-    elif prefix == False:
-        names = ohe.get_feature_names()
-        codes = [x[3:] for x in names]
-        new_names = [name_lookup[x] for x in codes]
-        df.columns = new_names
-    else:
-        names = ohe.get_feature_names()
-        #new_names = [prefix+'_'+x[3:] for x in names]
-        #df.columns = new_names   
-
-        codes = [x[3:] for x in names]
-        new_names = [prefix+'_'+name_lookup[x] for x in codes]
-        df.columns = new_names
-    
-    for col in df.columns:
-        df[col] = df[col].astype('int')
-    
-    df.columns = [x.replace(' ','').replace('-','') for x in df.columns]
-    
-    return df
-
-
 # Extract definitions of encoded naming schemes when given a lookup code
-def get_lookups(LUType, df_lookup):
+def get_lookups(LUType):
+    conn = sqlite3.connect('../../data/processed/main.db')
+    lookups_query = '''SELECT * FROM lookups'''
+    df_lookup = pd.read_sql(lookups_query, conn)
+    conn.close()
+    
     LUType = str(LUType)
     
     category = df_lookup.loc[df_lookup['LUType'] == LUType].copy()
