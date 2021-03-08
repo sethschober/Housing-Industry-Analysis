@@ -124,3 +124,23 @@ def stepwise_selection(X, y,
         if not changed:
             break
     return included
+
+
+
+def remove_df_extremes(df, devct, drop_zeros=False):
+    
+    if drop_zeros==True:
+        for col in df.columns:
+            df = df.loc[df[col]>0].copy()
+    
+    for col in df.columns:
+        df[col] = [float(num) for num in df[col]]
+        med = df[col].median()
+        std = df[col].std()
+
+        max_ = med + devct*std
+        min_ = med - devct*std 
+
+        df[col] = [x if ((x>min_) & (x<max_)) else np.nan for x in df[col]]
+    df.dropna(inplace=True)
+    return df
