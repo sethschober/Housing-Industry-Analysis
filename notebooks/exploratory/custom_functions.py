@@ -1,6 +1,11 @@
+import numpy as np
 import pandas as pd
-from sklearn.preprocessing import OneHotEncoder
+import seaborn as sns
 import statsmodels.api as sm
+
+from sklearn.preprocessing import OneHotEncoder
+from statsmodels.formula.api import ols
+
 
 # One-hot encode data coming in as a series
 # Optional prefix added to each column name
@@ -75,8 +80,8 @@ def remove_extremes(df, col, devct):
 # FUNCTION TAKEN DIRECTLY FROM FLATIRON COURSE MATERIAL (https://github.com/learn-co-curriculum/dsc-model-fit-linear-regression-lab)
 def stepwise_selection(X, y, 
                        initial_list=[], 
-                       threshold_in=0.01, 
-                       threshold_out = 0.05, 
+                       threshold_in =  0.0499, 
+                       threshold_out = 0.0500, 
                        verbose=True):
     """ 
     Perform a forward-backward feature selection 
@@ -144,3 +149,34 @@ def remove_df_extremes(df, devct, drop_zeros=False):
         df[col] = [x if ((x>min_) & (x<max_)) else np.nan for x in df[col]]
     df.dropna(inplace=True)
     return df
+
+# Create QQ-plot
+def qq(df, col):
+    plt.figure(figsize=(12,6));
+    sm.graphics.qqplot(df[col], line='45', fit=True)
+    plt.title(f'Normality Assumption Check: QQ plot of {col} values');
+    
+# Create DistPlot
+def dist(df, x):
+    plt.figure(figsize=(12,6));
+    sns.distplot(df[x])
+    plt.title(f'Distribution of {x} (KDE)')
+    
+# Create scatterplot (lmplot)
+def scatter(df, x, model):
+    plt.figure(figsize=(12, 6));
+    sns.lmplot(data = df, x=x, y=y, line_kws={'color':'r'})    
+    plt.xlabel(x)
+    plt.ylabel(y)
+    plt.title(f'Linearity Assumption: {x} vs. {y}');
+    
+    
+    
+# ESSENTIAL FUNCTION: CREATES MODEL
+def produce_model(df, x, y, devct=3, drop_zeros=False):
+    model_data = pd.concat([df[y], df[x]], axis=1)
+    model_data_trimmed = remove_df_extremes(model_data, devct, drop_zeros)
+    formula = y + ' ~ ' + '+'.join(x)
+    model = ols(formula, model_data_trimmed).fit()
+    print('Modeling:', formula, '\n')
+    return model, model_data_trimmed
