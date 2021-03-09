@@ -118,7 +118,7 @@ def scatter(df, x, model):
     
     
 # ESSENTIAL FUNCTION: CREATES MODEL
-def produce_model(df, x, cols_to_clean = [], y='SalePrice', devct=3, drop_zeros=False):
+def produce_model(df, x, y, cols_to_clean = [], devct=3, drop_zeros=False):
     model_data = pd.concat([df[y], df[x]], axis=1)
     model_data_trimmed = remove_df_extremes(model_data, cols_to_clean, devct, drop_zeros)
     formula = y + ' ~ ' + '+'.join(x)
@@ -157,11 +157,11 @@ def remove_df_extremes(df, cols_to_clean, devct, drop_zeros=False):
 
 
 
-def check_assumptions(model, df, feature_to_plot=False):
+def check_assumptions(model, df, y, feature_to_plot=False):
     linearity(model, df, feature_to_plot)
     normality(model, df)
-    homoscedacity(model, df)
-    independence(model, df, supress_figures=True)    
+    homoscedacity(model, df, y)
+    independence(model, df, y, supress_figures=True)    
 
 def linearity(model, df, feature_to_plot):
     lr = linear_rainbow(model)
@@ -183,7 +183,7 @@ def normality(model, df, plot_feature=False):
         plt.title('Normality of Residuals:', col);
     return jb[0], jb[1]    
 
-def homoscedacity(model, df, plot_feature=False):
+def homoscedacity(model, df, y, plot_feature=False):
     bp = het_breuschpagan(model.resid, model.model.exog)
     p_lm, p_f = bp[1], bp[3]
     print("Homoscedacity (where null hypothesis = homoscedastic): lagrange p-value={} and f-value's p-value={}".format(p_lm, p_f))
@@ -199,15 +199,15 @@ def homoscedacity(model, df, plot_feature=False):
     return p_lm, p_f
 
 # CITATION: function content taken from Flatiron School Study Group material
-def independence(model, df, supress_figures=False):
-    features = df.drop('SalePrice', axis=1).columns
+def independence(model, df, y, supress_figures=False):
+    features = df.drop(y, axis=1).columns
     
     if len(features) == 1:
         print('Variance Inflation Factor: NA (single variable)')
     else:
         df_vif = pd.DataFrame()
         df_vif['Feature'] = features
-        df_vif['VIF'] = [variance_inflation_factor(df.drop('SalePrice', axis=1).values, i) for i in range (len(features))]
+        df_vif['VIF'] = [variance_inflation_factor(df.drop(y, axis=1).values, i) for i in range (len(features))]
 
         if supress_figures == False:
             CorrMatrix = df.corr()
