@@ -30,20 +30,6 @@ def strip_spaces(df):
     return df
 
 
-# Remove *x* std deviations of data from an input
-def remove_extremes(df, col, devct):
-    df[col] = [float(num) for num in df[col]]
-    #cleaned = data.loc[data>0].copy()
-
-    std = cleaned.std()
-    med = cleaned.median()
-
-    cleaned = cleaned.loc[(cleaned > (med - std*devct)) & (cleaned < (med+std*devct))].copy() 
-    return cleaned
-
-
-
-
 
 
 # FUNCTION TAKEN DIRECTLY FROM FLATIRON COURSE MATERIAL (https://github.com/learn-co-curriculum/dsc-model-fit-linear-regression-lab)
@@ -101,23 +87,7 @@ def stepwise_selection(X, y,
 
 
 
-def remove_df_extremes(df, devct, drop_zeros=False):
-    
-    if drop_zeros==True:
-        for col in df.columns:
-            df = df.loc[df[col]>0].copy()
-    
-    for col in df.columns:
-        df[col] = [float(num) for num in df[col]]
-        med = df[col].median()
-        std = df[col].std()
 
-        max_ = med + devct*std
-        min_ = med - devct*std 
-
-        df[col] = [x if ((x>min_) & (x<max_)) else np.nan for x in df[col]]
-    df.dropna(inplace=True)
-    return df
 
 # Create QQ-plot
 def qq(df, col):
@@ -142,10 +112,29 @@ def scatter(df, x, model):
     
     
 # ESSENTIAL FUNCTION: CREATES MODEL
-def produce_model(df, x, y, devct=3, drop_zeros=False):
+def produce_model(df, x, cols_to_clean = [], y='SalePrice', devct=3, drop_zeros=False):
     model_data = pd.concat([df[y], df[x]], axis=1)
-    model_data_trimmed = remove_df_extremes(model_data, devct, drop_zeros)
+    model_data_trimmed = remove_df_extremes(model_data, cols_to_clean, devct, drop_zeros)
     formula = y + ' ~ ' + '+'.join(x)
     model = ols(formula, model_data_trimmed).fit()
     print('Modeling:', formula, '\n')
     return model, model_data_trimmed
+
+
+def remove_df_extremes(df, cols_to_clean, devct, drop_zeros=False):
+    
+    if drop_zeros==True:
+        for col in cols_to_clean:
+            df = df.loc[df[col]>0].copy()
+    
+    for col in cols_to_clean:
+        df[col] = [float(num) for num in df[col]]
+        med = df[col].median()
+        std = df[col].std()
+
+        max_ = med + devct*std
+        min_ = med - devct*std 
+
+        df[col] = [x if ((x>min_) & (x<max_)) else np.nan for x in df[col]]
+    df.dropna(inplace=True)
+    return df
