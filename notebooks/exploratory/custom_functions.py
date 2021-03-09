@@ -1,11 +1,17 @@
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 import seaborn as sns
 import sqlite3
 import statsmodels.api as sm
+import statsmodels.stats.api as sms
 
-from sklearn.preprocessing import OneHotEncoder
 from statsmodels.formula.api import ols
+from statsmodels.stats.diagnostic import linear_rainbow
+from statsmodels.stats.diagnostic import het_breuschpagan
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+from sklearn.preprocessing import OneHotEncoder
+
 
 
 # Extract definitions of encoded naming schemes when given a lookup code
@@ -138,3 +144,74 @@ def remove_df_extremes(df, cols_to_clean, devct, drop_zeros=False):
         df[col] = [x if ((x>min_) & (x<max_)) else np.nan for x in df[col]]
     df.dropna(inplace=True)
     return df
+
+
+
+
+
+
+
+
+
+
+
+
+
+def check_assumptions(model, df, feature_to_plot=False):
+    linearity(model, df, feature_to_plot)
+    normality(model, df)
+    homoscedacity(model, df)
+    independence(model, df, supress_figures=True)    
+
+def linearity(model, df, feature_to_plot):
+    lr = linear_rainbow(model)
+    p = lr[1]
+    print('Linearity p-value (where null hypothesis = linear):', p)
+    
+    if feature_to_plot != False:
+        sns.pairplot(df, kind='reg', diag_kind='kde', plot_kws={'line_kws':{'color':'g'}, 'scatter_kws': {'alpha': 0.3}})
+        
+        #sns.pairplot(df)
+        plt.suptitle('Investigating Linearity', y=1.05)
+    return p
+def normality(model, df, plot_feature=False):
+    jb = sms.jarque_bera(model.resid)
+    print('Normality of Residuals (where null hypothesis = normality): JB stat={}, JB stat p-value={}'.format(jb[0], jb[1]))
+    
+    if plot_feature != False:
+        sm.graphics.qqplot(df[plot_feature], line='45', fit=True)
+        plt.title('Normality of Residuals:', col);
+    return jb[0], jb[1]    
+
+def homoscedacity(model, df, plot_feature=False):
+    bp = het_breuschpagan(model.resid, model.model.exog)
+    p_lm, p_f = bp[1], bp[3]
+    print("Homoscedacity (where null hypothesis = homoscedastic): lagrange p-value={} and f-value's p-value={}".format(p_lm, p_f))
+    
+    if plot_feature != False:
+        predicted = model.predict()
+        error = df[y] - predicted
+        plt.scatter(df[plot_feature], error, alpha=0.3, )
+        plt.plot([df[plot_feature].min(), df[plot_feature].max()], [0,0], color='black')
+        plt.xlabel(plot_feature)
+        plt.ylabel("Error (Actual-Predicted)")
+        plt.title('Homoscedacity of Residuals');
+    return p_lm, p_f
+
+# CITATION: function content taken from Flatiron School Study Group material
+def independence(model, df, supress_figures=False):
+    features = df.drop('SalePrice', axis=1).columns
+    
+    if len(features) == 1:
+        print('Variance Inflation Factor: NA (single variable)')
+    else:
+        df_vif = pd.DataFrame()
+        df_vif['Feature'] = features
+        df_vif['VIF'] = [variance_inflation_factor(df.drop('SalePrice', axis=1).values, i) for i in range (len(features))]
+
+        if supress_figures == False:
+            CorrMatrix = df.corr()
+            #plt.figure(figsize=(15,10))
+            sns.heatmap(CorrMatrix, annot=True)
+        print('\nVariance Inflation Factors:\n', df_vif)
+        return df_vif
