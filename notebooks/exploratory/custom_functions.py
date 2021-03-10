@@ -157,61 +157,87 @@ def remove_df_extremes(df, cols_to_clean, devct, drop_zeros=False):
 
 
 
-def check_assumptions(model, df, y, feature_to_plot=False):
-    linearity(model, df, feature_to_plot)
-    normality(model, df)
-    homoscedacity(model, df, y)
-    independence(model, df, y, supress_figures=True)    
+def check_assumptions(model, df, y, verbose=True, feature_to_plot=False):
+    p = linearity(model, df, verbose, feature_to_plot)
+    jb, jb_p = normality(model, df, verbose, feature_to_plot)
+    lm, lm_pvalue, fvalue, f_pvalue = homoscedacity(model, df, y, verbose, feature_to_plot)
+    vif_avg = independence(model, df, y, verbose, feature_to_plot) 
+    
+    # return results
+    formula = y+'~'+'+'.join(df.drop(y, axis=1).columns)
+    
+    col_names = ['Formula', 'Linearity p-value', 'Jarque-Bera (JB) metric', 'JB p-value', 'Lagrange multiplier', 'Lagrange multiplier p-value', 'F-score', 'F-score p-value', 'Average VIF']
+    data = [formula, p, jb, jb_p, lm, lm_pvalue, fvalue, f_pvalue, vif_avg]
+    return pd.DataFrame([data], columns = col_names)
 
-def linearity(model, df, feature_to_plot):
+def linearity(model, df, verbose, feature_to_plot):
     lr = linear_rainbow(model)
     p = lr[1]
-    print('Linearity p-value (where null hypothesis = linear):', p)
     
-    if feature_to_plot != False:
-        sns.pairplot(df, kind='reg', diag_kind='kde', plot_kws={'line_kws':{'color':'g'}, 'scatter_kws': {'alpha': 0.3}})
-        
-        #sns.pairplot(df)
-        plt.suptitle('Investigating Linearity', y=1.05)
+    if verbose == True:
+        print('Linearity p-value (where null hypothesis = linear):', p)
+        if feature_to_plot != False:
+            plt.figure();
+            sns.pairplot(df, kind='reg', diag_kind='kde', plot_kws={'line_kws':{'color':'g'}, 'scatter_kws': {'alpha': 0.3}});
+            plt.suptitle('Investigating Linearity', y=1.05);
     return p
-def normality(model, df, plot_feature=False):
+
+def normality(model, df, verbose, plot_feature):
     jb = sms.jarque_bera(model.resid)
-    print('Normality of Residuals (where null hypothesis = normality): JB stat={}, JB stat p-value={}'.format(jb[0], jb[1]))
     
-    if plot_feature != False:
-        sm.graphics.qqplot(df[plot_feature], line='45', fit=True)
-        plt.title('Normality of Residuals:', col);
+    if verbose==True:
+        print('Normality of Residuals (where null hypothesis = normality): JB stat={}, JB stat p-value={}'.format(jb[0], jb[1]))
+    
+        if plot_feature != False:
+            fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(11, 4));
+
+            sm.graphics.qqplot(df[plot_feature], line='45', fit=True, ax=axes[0]);
+            plt.suptitle(f'Normality of Residuals: {plot_feature}');
+
+            sns.distplot(model.resid, label='Residuals', ax=axes[1])
+            sns.distplot(np.random.normal(size=10000), label='Normal Distribution', ax=axes[1])
+            axes[1].legend()
     return jb[0], jb[1]    
 
-def homoscedacity(model, df, y, plot_feature=False):
-    bp = het_breuschpagan(model.resid, model.model.exog)
-    p_lm, p_f = bp[1], bp[3]
-    print("Homoscedacity (where null hypothesis = homoscedastic): lagrange p-value={} and f-value's p-value={}".format(p_lm, p_f))
+def homoscedacity(model, df, y, verbose, plot_feature):
+    lm, lm_pvalue, fvalue, f_pvalue = het_breuschpagan(model.resid, model.model.exog)
     
-    if plot_feature != False:
-        predicted = model.predict()
-        error = df[y] - predicted
-        plt.scatter(df[plot_feature], error, alpha=0.3, )
-        plt.plot([df[plot_feature].min(), df[plot_feature].max()], [0,0], color='black')
-        plt.xlabel(plot_feature)
-        plt.ylabel("Error (Actual-Predicted)")
-        plt.title('Homoscedacity of Residuals');
-    return p_lm, p_f
+    if verbose==True:
+        print("Homoscedacity (where null hypothesis = homoscedastic): lagrange p-value={} and f-value's p-value={}".format(lm_pvalue, f_pvalue))
+    
+        if plot_feature != False:
+            predicted = model.predict()
+            error = df[y] - predicted
+            plt.figure();
+            plt.scatter(df[plot_feature], error, alpha=0.3);
+            plt.plot([df[plot_feature].min(), df[plot_feature].max()], [0,0], color='black')
+            plt.xlabel(plot_feature)
+            plt.ylabel("Error (Actual-Predicted)")
+            plt.title('Homoscedacity of Residuals');
+    return lm, lm_pvalue, fvalue, f_pvalue
 
 # CITATION: function content taken from Flatiron School Study Group material
-def independence(model, df, y, supress_figures=False):
+def independence(model, df, y, verbose, plot_feature):
     features = df.drop(y, axis=1).columns
     
     if len(features) == 1:
-        print('Variance Inflation Factor: NA (single variable)')
+        df_vif='NA (single variable)'
+        if verbose==True:
+            print('Variance Inflation Factors:', df_vif)
     else:
         df_vif = pd.DataFrame()
         df_vif['Feature'] = features
         df_vif['VIF'] = [variance_inflation_factor(df.drop(y, axis=1).values, i) for i in range (len(features))]
-
-        if supress_figures == False:
+        if verbose==True:
+            print('\nVariance Inflation Factors:\n', df_vif)
+    
+    if verbose == True:
+        if plot_feature != False:
             CorrMatrix = df.corr()
-            #plt.figure(figsize=(15,10))
-            sns.heatmap(CorrMatrix, annot=True)
-        print('\nVariance Inflation Factors:\n', df_vif)
-        return df_vif
+            plt.figure();
+            sns.heatmap(CorrMatrix, annot=True);
+    
+    if type(df_vif)==type('test'):
+        return 'NA'
+    else:
+        return df_vif.VIF.mean()
