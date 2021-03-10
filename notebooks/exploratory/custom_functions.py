@@ -166,8 +166,10 @@ def check_assumptions(model, df, y, verbose=True, feature_to_plot=False):
     # return results
     formula = y+'~'+'+'.join(df.drop(y, axis=1).columns)
     
-    col_names = ['Formula', 'Linearity p-value', 'Jarque-Bera (JB) metric', 'JB p-value', 'Lagrange multiplier', 'Lagrange multiplier p-value', 'F-score', 'F-score p-value', 'Average VIF']
-    data = [formula, p, jb, jb_p, lm, lm_pvalue, fvalue, f_pvalue, vif_avg]
+    
+    r2_adj = model.rsquared_adj
+    col_names = ['Formula', 'Linearity p-value', 'Jarque-Bera (JB) metric', 'JB p-value', 'Lagrange multiplier', 'Lagrange multiplier p-value', 'F-score', 'F-score p-value', 'Average VIF', 'R^2 (Adj.)']
+    data = [formula, p, jb, jb_p, lm, lm_pvalue, fvalue, f_pvalue, vif_avg, r2_adj]
     return pd.DataFrame([data], columns = col_names)
 
 def linearity(model, df, verbose, feature_to_plot):
@@ -177,6 +179,13 @@ def linearity(model, df, verbose, feature_to_plot):
     if verbose == True:
         print('Linearity p-value (where null hypothesis = linear):', p)
         if feature_to_plot != False:
+            
+            # Identify non-categorical features
+            for col in df.columns:
+                if df[col].value_counts().shape[0] == 2:
+                    df.drop(col, axis=1, inplace=True)
+            
+            
             plt.figure();
             sns.pairplot(df, kind='reg', diag_kind='kde', plot_kws={'line_kws':{'color':'g'}, 'scatter_kws': {'alpha': 0.3}});
             plt.suptitle('Investigating Linearity', y=1.05);
@@ -216,7 +225,8 @@ def homoscedacity(model, df, y, verbose, plot_feature):
             plt.title('Homoscedacity of Residuals');
     return lm, lm_pvalue, fvalue, f_pvalue
 
-# CITATION: function content taken from Flatiron School Study Group material
+
+
 def independence(model, df, y, verbose, plot_feature):
     features = df.drop(y, axis=1).columns
     
