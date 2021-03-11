@@ -118,10 +118,12 @@ def scatter(df, x, model):
     
     
 # ESSENTIAL FUNCTION: CREATES MODEL
-def produce_model(df, x, y, cols_to_clean = [], devct=3, drop_zeros=False):
+def produce_model(df, x, y, cols_to_clean = [], devct=3, drop_zeros=False, formula=False):
     model_data = pd.concat([df[y], df[x]], axis=1)
     model_data_trimmed = remove_df_extremes(model_data, cols_to_clean, devct, drop_zeros)
-    formula = y + ' ~ ' + '+'.join(x)
+    
+    if formula==False:
+        formula = y + ' ~ ' + '+'.join(x)
     model = ols(formula, model_data_trimmed).fit()
     print('Modeling:', formula, '\n')
     return model, model_data_trimmed
