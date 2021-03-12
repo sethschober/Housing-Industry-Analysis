@@ -95,25 +95,10 @@ def stepwise_selection(X, y,
 
 
 
-# Create QQ-plot
-def qq(df, col):
-    plt.figure(figsize=(12,6));
-    sm.graphics.qqplot(df[col], line='45', fit=True)
-    plt.title(f'Normality Assumption Check: QQ plot of {col} values');
-    
-# Create DistPlot
-def dist(df, x):
-    plt.figure(figsize=(12,6));
-    sns.distplot(df[x])
-    plt.title(f'Distribution of {x} (KDE)')
-    
-# Create scatterplot (lmplot)
-def scatter(df, x, model):
-    plt.figure(figsize=(12, 6));
-    sns.lmplot(data = df, x=x, y=y, line_kws={'color':'r'})    
-    plt.xlabel(x)
-    plt.ylabel(y)
-    plt.title(f'Linearity Assumption: {x} vs. {y}');
+
+
+
+
     
     
     
@@ -130,19 +115,15 @@ def produce_model(df, x, y, cols_to_clean = [], devct=3, drop_zeros=False, formu
 
 
 def remove_df_extremes(df, cols_to_clean, devct, drop_zeros=False):
-    
     if drop_zeros==True:
         for col in cols_to_clean:
             df = df.loc[df[col]>0].copy()
-    
     for col in cols_to_clean:
         df[col] = [float(num) for num in df[col]]
         med = df[col].median()
         std = df[col].std()
-
         max_ = med + devct*std
         min_ = med - devct*std 
-
         df[col] = [x if ((x>min_) & (x<max_)) else np.nan for x in df[col]]
     df.dropna(inplace=True)
     return df
@@ -166,12 +147,12 @@ def check_assumptions(model, df, y, verbose=True, feature_to_plot=False):
     vif_avg = independence(model, df, y, verbose, feature_to_plot) 
     
     # return results
-    formula = y+'~'+'+'.join(df.drop(y, axis=1).columns)
+    x = '+'.join(df.drop(y, axis=1).columns)
     
     
     r2_adj = model.rsquared_adj
-    col_names = ['Formula', 'Linearity p-value', 'Jarque-Bera (JB) metric', 'JB p-value', 'Lagrange multiplier', 'Lagrange multiplier p-value', 'F-score', 'F-score p-value', 'Average VIF', 'R^2 (Adj.)']
-    data = [formula, p, jb, jb_p, lm, lm_pvalue, fvalue, f_pvalue, vif_avg, r2_adj]
+    col_names = ['Y', 'X', 'Linearity p-value', 'Jarque-Bera (JB) metric', 'JB p-value', 'Lagrange multiplier', 'Lagrange multiplier p-value', 'F-score', 'F-score p-value', 'Average VIF', 'R^2 (Adj.)']
+    data = [y, x, p, jb, jb_p, lm, lm_pvalue, fvalue, f_pvalue, vif_avg, r2_adj]
     return pd.DataFrame([data], columns = col_names)
 
 def linearity(model, df, verbose, feature_to_plot):
