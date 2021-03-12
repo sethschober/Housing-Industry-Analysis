@@ -11,6 +11,8 @@ from statsmodels.stats.diagnostic import linear_rainbow
 from statsmodels.stats.diagnostic import het_breuschpagan
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from sklearn.preprocessing import OneHotEncoder
+from sklearn.feature_selection import RFE
+from sklearn.linear_model import LinearRegression
 
 
 
@@ -278,3 +280,19 @@ def forward_selected(data, response):
                                    ' + '.join(selected))
     model = smf.ols(formula, data).fit()
     return model
+
+
+
+
+
+
+
+
+
+
+def recursive_feature_elimination(x, y, n):
+    linreg = LinearRegression()
+    selector = RFE(linreg, n_features_to_select = n)
+    selector = selector.fit(x, y.values.ravel()) # convert y to 1d np array to prevent DataConversionWarning
+    top_features = x.loc[:, selector.support_]#.columns
+    return top_features
