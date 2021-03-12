@@ -5,6 +5,7 @@ import seaborn as sns
 import sqlite3
 import statsmodels.api as sm
 import statsmodels.stats.api as sms
+import statsmodels.formula.api as smf
 
 from statsmodels.formula.api import ols
 from statsmodels.stats.diagnostic import linear_rainbow
@@ -36,6 +37,16 @@ def strip_spaces(df):
     for col in df.columns:
         df[col] = df[col].str.strip()
     return df
+
+
+def cut_extremes(series, n):
+    std = series.std()
+    median = series.median()
+    max_ = median + n*std
+    min_ = median - n*std
+    
+    cut = lambda x: np.nan if x<min_ else np.nan if x>max_ else x
+    return series.apply(cut)
 
 
 
@@ -265,6 +276,15 @@ def forward_selected(data, response):
 def recursive_feature_elimination(x, y, n):
     linreg = LinearRegression()
     selector = RFE(linreg, n_features_to_select = n)
-    selector = selector.fit(x, y.values.ravel()) # convert y to 1d np array to prevent DataConversionWarning
-    top_features = x.loc[:, selector.support_]#.columns
+    selector = selector.fit(x, y.values.ravel())
+    top_features = x.loc[:, selector.support_]
+    
+#     # Determine which features were removed
+#     removed = list(x.columns)
+#     for item in keepers:
+#         removed.remove(item)
+
+#     # print('\nRemaining features:', keepers)
+#     # print('\nRemoved features:', removed)
+    
     return top_features
