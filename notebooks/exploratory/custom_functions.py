@@ -104,31 +104,12 @@ def stepwise_selection(X, y,
     
     
     
-# ESSENTIAL FUNCTION: CREATES MODEL
-def produce_model(df, x, y, cols_to_clean = [], devct=3, drop_zeros=False, formula=False):
-    model_data = pd.concat([df[y], df[x]], axis=1)
-    model_data_trimmed = remove_df_extremes(model_data, cols_to_clean, devct, drop_zeros)
-    
-    if formula==False:
-        formula = y + ' ~ ' + '+'.join(x)
-    model = ols(formula, model_data_trimmed).fit()
-    print('Modeling:', formula, '\n')
-    return model, model_data_trimmed
-
-
-def remove_df_extremes(df, cols_to_clean, devct, drop_zeros=False):
-    if drop_zeros==True:
-        for col in cols_to_clean:
-            df = df.loc[df[col]>0].copy()
-    for col in cols_to_clean:
-        df[col] = [float(num) for num in df[col]]
-        med = df[col].median()
-        std = df[col].std()
-        max_ = med + devct*std
-        min_ = med - devct*std 
-        df[col] = [x if ((x>min_) & (x<max_)) else np.nan for x in df[col]]
-    df.dropna(inplace=True)
-    return df
+# CREATES MODEL
+def produce_model(df, x, y):
+    formula = y + ' ~ ' + '+'.join(x)
+    model = ols(formula, df).fit()
+    print('Modeling:', formula)
+    return model, df[[y]+x].copy()
 
 
 
@@ -141,80 +122,72 @@ def remove_df_extremes(df, cols_to_clean, devct, drop_zeros=False):
 
 
 
-
-def check_assumptions(model, df, y, verbose=True, feature_to_plot=False):
-    p = linearity(model, df, verbose, feature_to_plot)
+def check_assumptions(model, df, y, verbose=False, feature_to_plot=False):
+    p        = linearity(model, df, verbose, feature_to_plot)
     jb, jb_p = normality(model, df, verbose, feature_to_plot)
     lm, lm_pvalue, fvalue, f_pvalue = homoscedacity(model, df, y, verbose, feature_to_plot)
-    vif_avg = independence(model, df, y, verbose, feature_to_plot) 
+    vif_avg  = independence(model, df, y, verbose, feature_to_plot) 
     
-    # return results
     x = '+'.join(df.drop(y, axis=1).columns)
-    
-    
     r2_adj = model.rsquared_adj
     col_names = ['Y', 'X', 'Linearity p-value', 'Jarque-Bera (JB) metric', 'JB p-value', 'Lagrange multiplier', 'Lagrange multiplier p-value', 'F-score', 'F-score p-value', 'Average VIF', 'R^2 (Adj.)']
     data = [y, x, p, jb, jb_p, lm, lm_pvalue, fvalue, f_pvalue, vif_avg, r2_adj]
     return pd.DataFrame([data], columns = col_names)
 
 def linearity(model, df, verbose, feature_to_plot):
-    lr = linear_rainbow(model)
-    p = lr[1]
+    p = linear_rainbow(model)[1]
     
     if verbose == True:
         print('Linearity p-value (where null hypothesis = linear):', p)
-        if feature_to_plot != False:
-            
-            # Identify non-categorical features
-            for col in df.columns:
-                if df[col].value_counts().shape[0] == 2:
-                    df.drop(col, axis=1, inplace=True)
-            
-            
-            plt.figure();
-            sns.pairplot(df, kind='reg', diag_kind='kde', plot_kws={'line_kws':{'color':'g'}, 'scatter_kws': {'alpha': 0.3}});
-            plt.suptitle('Investigating Linearity', y=1.05);
+    if feature_to_plot != False:
+        # Identify non-categorical features
+        df_plotter = df.copy()
+        for col in df_plotter.columns:
+            if df_plotter[col].value_counts().shape[0] == 2:
+                df_plotter.drop(col, axis=1, inplace=True)
+        plt.figure();
+        sns.pairplot(df_plotter, kind='reg', diag_kind='kde', plot_kws={'line_kws':{'color':'g'}, 'scatter_kws': {'alpha': 0.3}});
+        plt.suptitle('Investigating Linearity', y=1.05);
     return p
 
-def normality(model, df, verbose, plot_feature):
+def normality(model, df, verbose, feature_to_plot):
     jb = sms.jarque_bera(model.resid)
     
     if verbose==True:
         print('Normality of Residuals (where null hypothesis = normality): JB stat={}, JB stat p-value={}'.format(jb[0], jb[1]))
     
-        if plot_feature != False:
-            fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(11, 4));
+    if feature_to_plot != False:
+        fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(11, 4));
 
-            sm.graphics.qqplot(df[plot_feature], line='45', fit=True, ax=axes[0]);
-            plt.suptitle(f'Normality of Residuals: {plot_feature}');
+        sm.graphics.qqplot(df[feature_to_plot], line='45', fit=True, ax=axes[0]);
+        plt.suptitle(f'Normality of Residuals: {feature_to_plot}');
 
-            sns.distplot(model.resid, label='Residuals', ax=axes[1])
-            sns.distplot(np.random.normal(size=10000), label='Normal Distribution', ax=axes[1])
-            axes[1].legend()
+        sns.distplot(model.resid, label='Residuals', ax=axes[1])
+        sns.distplot(np.random.normal(size=10000), label='Normal Distribution', ax=axes[1])
+        axes[1].legend()
     return jb[0], jb[1]    
 
-def homoscedacity(model, df, y, verbose, plot_feature):
+def homoscedacity(model, df, y, verbose, feature_to_plot):
     lm, lm_pvalue, fvalue, f_pvalue = het_breuschpagan(model.resid, model.model.exog)
     
     if verbose==True:
         print("Homoscedacity (where null hypothesis = homoscedastic): lagrange p-value={} and f-value's p-value={}".format(lm_pvalue, f_pvalue))
     
-        if plot_feature != False:
-            predicted = model.predict()
-            error = df[y] - predicted
-            plt.figure();
-            plt.scatter(df[plot_feature], error, alpha=0.3);
-            plt.plot([df[plot_feature].min(), df[plot_feature].max()], [0,0], color='black')
-            plt.xlabel(plot_feature)
-            plt.ylabel("Error (Actual-Predicted)")
-            plt.title('Homoscedacity of Residuals');
+    if feature_to_plot != False:
+        predicted = model.predict()
+        error = df[y] - predicted
+        plt.figure();
+        plt.scatter(df[feature_to_plot], error, alpha=0.3);
+        plt.plot([df[feature_to_plot].min(), df[feature_to_plot].max()], [0,0], color='black')
+        plt.xlabel(feature_to_plot)
+        plt.ylabel("Error (Actual-Predicted)")
+        plt.title('Homoscedacity of Residuals');
     return lm, lm_pvalue, fvalue, f_pvalue
 
 
 
-def independence(model, df, y, verbose, plot_feature):
+def independence(model, df, y, verbose, feature_to_plot):
     features = df.drop(y, axis=1).columns
-    
     if len(features) == 1:
         df_vif='NA (single variable)'
         if verbose==True:
@@ -224,13 +197,12 @@ def independence(model, df, y, verbose, plot_feature):
         df_vif['Feature'] = features
         df_vif['VIF'] = [variance_inflation_factor(df.drop(y, axis=1).values, i) for i in range (len(features))]
         if verbose==True:
-            print('\nVariance Inflation Factors:\n', df_vif)
+            print('Variance Inflation Factors:\n', df_vif)
     
-    if verbose == True:
-        if plot_feature != False:
-            CorrMatrix = df.corr()
-            plt.figure();
-            sns.heatmap(CorrMatrix, annot=True);
+    if feature_to_plot != False:
+        CorrMatrix = df.corr()
+        plt.figure();
+        sns.heatmap(CorrMatrix, annot=True);
     
     if type(df_vif)==type('test'):
         return 'NA'
