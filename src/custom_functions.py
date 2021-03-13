@@ -343,3 +343,22 @@ def recursive_feature_elimination(x, y, n):
 #     # print('\nRemoved features:', removed)
     
     return top_features
+
+
+
+
+
+def identify_continuous_features(df):
+
+    # Identify continous features within minimum number of distinct observations
+    continuous_features = []
+    for col in df.columns:
+        ct = df[col].value_counts().shape[0]
+        
+        if ct > 50: # semi-arbitrary threshold to eliminate discrete features w/few unique values
+            if (type(df[col][0])==type(np.int64(1))) or (type(df[col][0])==type(np.float64(0))):
+                continuous_features.append(col)
+
+    # SLOW but potentially powerful pair-plot            
+    #sns.pairplot(df[continuous_features], kind='reg', diag_kind='kde', plot_kws={'line_kws':{'color':'g'}, 'scatter_kws': {'alpha': 0.3}});
+    return df[continuous_features]
