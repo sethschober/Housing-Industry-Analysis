@@ -105,8 +105,9 @@ def stepwise_selection(X, y,
 
     # Determine which features were removed
     if verbose==True:
-        removed = included.copy()
+        removed = list(X.columns)
         for item in included:
+            print(item)
             removed.remove(item)
 
     print('Remaining features:', included)
