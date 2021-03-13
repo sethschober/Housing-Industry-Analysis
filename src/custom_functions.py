@@ -17,6 +17,13 @@ from sklearn.linear_model import LinearRegression
 
 
 
+
+
+def elimination_by_code(series, code_to_keep):
+    series.loc[series != code_to_keep] = np.nan
+    return series
+
+
 # Extract definitions of encoded naming schemes when given a lookup code
 def get_lookups(LUType):
     conn = sqlite3.connect('../../data/processed/main.db')
