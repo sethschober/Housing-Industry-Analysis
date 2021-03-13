@@ -102,6 +102,16 @@ def stepwise_selection(X, y,
                 print('Drop {:30} with p-value {:.6}'.format(worst_feature, worst_pval))
         if not changed:
             break
+
+    # Determine which features were removed
+    if verbose==True:
+        removed = included.copy()
+        for item in included:
+            removed.remove(item)
+
+    print('Remaining features:', included)
+    print('Removed features:', removed)
+    
     return included
 
 
