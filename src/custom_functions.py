@@ -24,6 +24,43 @@ def elimination_by_code(series, code_to_keep):
     return series
 
 
+
+
+
+
+
+
+
+def identify_latest_sale(docdates, parcel_ids):
+    latest_parcel_sale = []
+    data = pd.DataFrame([docdates, parcel_ids]).T
+    data.DocumentDate = data.DocumentDate.astype('datetime64')
+ 
+    for i, parcel_id in enumerate(data.Parcel_ID):
+        relevant_docdates = data.loc[data.Parcel_ID == parcel_id, 'DocumentDate']
+        max_docdate = relevant_docdates.values.max()
+        this_datetime = np.datetime64(data.iloc[i, 0]) 
+        latest_parcel_sale.append(this_datetime == max_docdate)
+    return latest_parcel_sale
+
+
+
+
+def avg_price_for_duped_parcels(data):
+    dupes = data.loc[data.SaleCount > 1]
+    for i, ind in enumerate(dupes.index):
+        parcel_id = data.loc[ind, 'Parcel_ID']
+        parcels_w_parcel_id = data.loc[data.Parcel_ID == parcel_id, 'SalePrice']
+
+        avg_price_for_id = parcels_w_parcel_id.values.mean()
+        for parcel_index in parcels_w_parcel_id.index:
+            data.at[parcel_index, 'SalePrice'] = avg_price_for_id
+    return data
+
+
+
+
+
 # Extract definitions of encoded naming schemes when given a lookup code
 def get_lookups(LUType):
     conn = sqlite3.connect('../../data/processed/main.db')
