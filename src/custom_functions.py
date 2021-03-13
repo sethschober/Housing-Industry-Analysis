@@ -189,10 +189,10 @@ def produce_model(df, x, y):
 
 
 def check_assumptions(model, df, y, verbose=False, feature_to_plot=False):
-    p        = linearity(model, df, verbose, feature_to_plot)
-    jb, jb_p = normality(model, df, verbose, feature_to_plot)
-    lm, lm_pvalue, fvalue, f_pvalue = homoscedacity(model, df, y, verbose, feature_to_plot)
-    vif_avg  = independence(model, df, y, verbose, feature_to_plot) 
+    p        = linearity(model, df, verbose, feature_to_plot);
+    jb, jb_p = normality(model, df, verbose, feature_to_plot);
+    lm, lm_pvalue, fvalue, f_pvalue = homoscedacity(model, df, y, verbose, feature_to_plot);
+    vif_avg  = independence(model, df, y, verbose, feature_to_plot);
     
     x = '+'.join(df.drop(y, axis=1).columns)
     r2_adj = model.rsquared_adj
@@ -213,8 +213,8 @@ def linearity(model, df, verbose, feature_to_plot):
                 df_plotter.drop(col, axis=1, inplace=True)
         plt.figure();
         sns.pairplot(df_plotter, kind='reg', diag_kind='kde', plot_kws={'line_kws':{'color':'g'}, 'scatter_kws': {'alpha': 0.3}});
-        plt.suptitle('Investigating Linearity', y=1.05);
-    return p
+        plt.suptitle('Investigating Linearity (Continuous Features Only)', y=1.05);
+    return p;
 
 def normality(model, df, verbose, feature_to_plot):
     jb = sms.jarque_bera(model.resid)
