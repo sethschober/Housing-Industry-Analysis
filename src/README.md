@@ -1,3 +1,3 @@
 # Data
 
-This directory will store ______
+This directory contains source code for user-defined functions imported into the Exploratory and Final notebooks.

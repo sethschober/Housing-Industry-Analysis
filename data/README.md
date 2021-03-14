@@ -1,3 +1,3 @@
 # Data
 
-This directory will store both raw and processed data
+This directory stores both raw input data and data that has been processed.

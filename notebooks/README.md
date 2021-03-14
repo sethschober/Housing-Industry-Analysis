@@ -1,6 +1,6 @@
 # Jupyter Notebooks
 
-This directory will store:
+This directory stores:
 
- - unpolished exploratory data analysis (EDA) notebooks; and
- - a polished notebook that states the business problem and summarizes your solution, along with high level takeaways.
+ - Unpolished exploratory data analysis (EDA) notebooks that go farther into depth on model selection decisions and parameter cleaning processes.
+ - Polished notebook that provides the material from exploratory notebooks in a more summarized nature, including key takeaways.

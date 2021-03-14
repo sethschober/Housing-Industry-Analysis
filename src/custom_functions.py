@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import sqlite3
 import statsmodels.api as sm
 import statsmodels.stats.api as sms
 import statsmodels.formula.api as smf
@@ -15,24 +14,6 @@ from statsmodels.stats.outliers_influence import variance_inflation_factor
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.feature_selection import RFE
 from sklearn.linear_model import LinearRegression
-
-
-
-    """Linear model designed by forward selection.
-
-    Parameters:
-    -----------
-    data : pandas DataFrame with all possible predictors and response
-
-    response: string, name of response column in data
-
-    Returns:
-    --------
-    model: an "optimal" fitted statsmodels linear model
-           with an intercept
-           selected by forward selection
-           evaluated by adjusted R-squared
-    """
 
 
 
