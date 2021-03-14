@@ -603,7 +603,7 @@ def identify_continuous_features(df):
         ct = df[col].value_counts().shape[0]
         
         # Subjective threshold to eliminate discrete features w/few unique values
-        if ct > 50: 
+        if ct > 20: 
             
             # Add to list of continuous features if relevant
             if (type(df[col][0])==type(np.int64(1))) or (type(df[col][0])==type(np.float64(0))):
