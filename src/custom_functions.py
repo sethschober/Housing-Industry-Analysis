@@ -34,7 +34,7 @@ def elimination_by_code(series, code_to_keep):
     """
     
     series.loc[series != code_to_keep] = np.nan
-    return series
+    return series.copy()
 
 
 
