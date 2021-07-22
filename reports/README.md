@@ -1,3 +1,3 @@
 # Reports
 
-Report emphasizing findings of analysis.
+Report detailing findings of analysis.
