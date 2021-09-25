@@ -141,5 +141,6 @@ dmypy.json
 main.db
 data/processed/main.db
 Calculations.ipynb
+Calculations2.ipynb
 _canvas submission
 presentation_recording.mp4
