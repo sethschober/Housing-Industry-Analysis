@@ -2,11 +2,33 @@
 This repository offers an analysis of factors that influence housing prices in King County, WA.
 
 
-
 ## Quick Links
-1. [Repository Directory](#Repository-Directory)
-2. [Final Analysis Notebook](notebooks/report/final_notebook.ipynb)
-3. [Presentation Slides](reports/presentation.pdf)
+1. [Final Analysis Notebook](notebooks/report/final_notebook.ipynb)
+2. [Presentation Slides](reports/presentation.pdf)
+
+
+
+## Repository Directory
+
+```
+├── README.md        <-- Main README file explaining the project's business case,
+│                        methodology, and findings
+│
+├── data             <-- Data in CSV format
+│   ├── processed    <-- Processed (combined, cleaned) data used for modeling
+│   └── raw          <-- Original (immutable) data dump
+│
+├── notebooks        <-- Jupyter Notebooks for exploration and presentation
+│
+├── references       <-- Data dictionaries, manuals, and project instructions
+│
+├── reports          <-- Generated analysis (including presentation.pdf)
+│   └── figures      <-- Generated graphics and figures to be used in reporting
+│
+└── src              <-- Source code for custom functions
+    
+```
+
 
 ### Setup Instructions
 This analysis uses largely standard Data Science packages. However, if you would like the full conda environment file, you may find it [here](src/linreg-env.yml).
@@ -26,12 +48,12 @@ In a similar fashion, there were 105 columns of data to begin with, yet the fina
 ## Data Understanding
 Once data was narrowed as described above, feature engineering was a core component. Maybe attributes were categorical in nature and thus needed to be one-hot encoded. The below heat map shows the correlation between some of the most relevant features. 
 
-First, we see some of the valuable continuous features alongside their correlation.![correlations_continuous](./references/figures/correlations_continuous.png)
+First, we see some of the valuable continuous features alongside their correlation.![correlations_continuous](./report/figures/correlations_continuous.png)
 
 
-Next, we see a set of features that were largely engineered, whether through data aggregation or one-hot encoding. In many cases, the correlation with SalePrice remained low. ![correlations_continuous](./references/figures/correlations_discrete.png)
+Next, we see a set of features that were largely engineered, whether through data aggregation or one-hot encoding. In many cases, the correlation with SalePrice remained low. ![correlations_continuous](./report/figures/correlations_discrete.png)
 
-Taking a look at selected continuous inputs below, data skew is clearly an issue. For features that were used in the final model, log transformations were essential. In addition to feature engineering, multiple inputs were log-transformed to meet the linearity requirements for linear regression. ![distribution_image](./references/figures/Distribution_of_Continuous_Features.png)
+Taking a look at selected continuous inputs below, data skew is clearly an issue. For features that were used in the final model, log transformations were essential. In addition to feature engineering, multiple inputs were log-transformed to meet the linearity requirements for linear regression. ![distribution_image](./report/figures/Distribution_of_Continuous_Features.png)
 
 
 
@@ -67,22 +89,3 @@ With all this in mind, it is worth keeping in mind that the results are highly l
 
 
 
-## Repository Directory
-
-```
-├── README.md        <-- Main README file explaining the project's business case,
-│                        methodology, and findings
-│
-├── data             <-- Data in CSV format
-│   ├── processed    <-- Processed (combined, cleaned) data used for modeling
-│   └── raw          <-- Original (immutable) data dump
-│
-├── notebooks        <-- Jupyter Notebooks for exploration and presentation
-│   ├── exploratory  <-- Unpolished exploratory data analysis (EDA) notebooks
-│   └── report       <-- Polished final notebook(s)
-│
-├── references       <-- Data dictionaries, manuals, and project instructions
-│
-└── reports          <-- Generated analysis (including presentation.pdf)
-    └── figures      <-- Generated graphics and figures to be used in reporting
-```
