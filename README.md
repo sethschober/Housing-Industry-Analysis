@@ -26,7 +26,7 @@ This repository offers an analysis of factors that influence housing prices in K
 │   └── figures      <-- Generated graphics and figures to be used in reporting
 │
 └── src              <-- Source code for custom functions
-    
+
 ```
 
 
@@ -35,18 +35,18 @@ This analysis uses largely standard Data Science packages. However, if you would
 
 
 ## Business Understanding
-This analysis seeks to gather valuable insight about how various home characteristics can affect sale price. It will address how common home improvements may be correlated with sale price. For example, how much can finishing your basement increase your home value? Is there any connection between the type of heating you use and the home value? Some people prefer enclosed porches to open porches - but does it impact your home value? These are all questions we will dive into deeply and seek to understand using inferential Ordinary Least Squares (OLS) linear regression. 
+This analysis seeks to gather valuable insight about how various home characteristics can affect sale price. It will address how common home improvements may be correlated with sale price. For example, how much can finishing your basement increase your home value? Is there any connection between the type of heating you use and the home value? Some people prefer enclosed porches to open porches - but does it impact your home value? These are all questions we will dive into deeply and seek to understand using inferential Ordinary Least Squares (OLS) linear regression.
 
 
 
 ## Data Preparation
-Although over 532,000 rows of data were initially available, this was eventually narrowed down to just over 18,000. Many of these records corresponded with commercial properties or simply land without homes. More still were duplicated sale data for the same parcel, which was narrowed down further. 
+Although over 532,000 rows of data were initially available, this was eventually narrowed down to just over 18,000. Many of these records corresponded with commercial properties or simply land without homes. More still were duplicated sale data for the same parcel, which was narrowed down further.
 
 In a similar fashion, there were 105 columns of data to begin with, yet the final model contains only 11 inputs. Needless to say, data preparation was a large portion of this analysis.
 
 
 ## Data Understanding
-Once data was narrowed as described above, feature engineering was a core component. Maybe attributes were categorical in nature and thus needed to be one-hot encoded. The below heat map shows the correlation between some of the most relevant features. 
+Once data was narrowed as described above, feature engineering was a core component. Maybe attributes were categorical in nature and thus needed to be one-hot encoded. The below heat map shows the correlation between some of the most relevant features.
 
 First, we see some of the valuable continuous features alongside their correlation.![correlations_continuous](./report/figures/correlations_continuous.png)
 
@@ -75,7 +75,7 @@ The model performance can be summarized as:
 3. Nearly meeting the homoscedacity requirement with an F-score p-value of 0.009, less than one order of magnitude from the 0.05 alpha threshold.
 4. Not meeting the normality of residuals requirement. Based on the Jarque-Bera metric, the model was very far from passing this test.
 5. R squared metric of 0.40.
-6. All discussed results occurred at a statistically significant level. 
+6. All discussed results occurred at a statistically significant level.
 
 
 ## Conclusion
@@ -83,9 +83,6 @@ The model provides valuable insight about the questions under investigation. Spe
 1. Homes with an enclosed porch tend to sell for 17% more than those with an open porch.
 2. Homes with Radiant heating tend to sell for the most, whereas those with Electric Baseboard heating tend to sell for the least.
 3. Homes with a completely finished basement typically sell for 18% more than homes with unfinished basements.
-4. The impact between livable square footage and home sale price is striking: for every 10% increase in square footage, home value typically increases by 7%. 
+4. The impact between livable square footage and home sale price is striking: for every 10% increase in square footage, home value typically increases by 7%.
 
 With all this in mind, it is worth keeping in mind that the results are highly localized to King County in Washington and surely vary by location.
-
-
-

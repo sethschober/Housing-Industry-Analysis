@@ -63,7 +63,7 @@ In any extra time:
 2. An `environment.yml` file that contains all the necessary packages needed to recreate your `linreg-env` conda environment.
     - A study group will be held covering conda environments Monday, February 22. You can reference conda documentation ][here](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) to learn how to create and export the `linreg-env` conda environment.
 3. A standalone `src/` directory that stores all relevant source code.
-    - All functions have docstrings that act as [professional-quality documentation](http://google.github.io/styleguide/pyguide.html#381-docstrings). 
+    - All functions have docstrings that act as [professional-quality documentation](http://google.github.io/styleguide/pyguide.html#381-docstrings).
     - If applicable, [well documented](https://www.sqlstyle.guide/) SQL queries with appropriate single-line or multiline comments.
     - Quality linear regression model
        - Your model should avoid violating any of the assumptions of a linear regression
@@ -164,10 +164,7 @@ Beyond just the numbers, tie these findings into a broader narrative that incorp
  - "What are some of the things that could cause the results to be wrong?"
 
 ## Citations
-1. Unknown author. 2017. "What is the Value of Adding a Porch Enclosure to my Outdoor Space?". Patio Enclosures. Available at https://www.patioenclosures.com/what-is-the-value-of-adding-a-porch-enclosure-to-my-outdoor-space.aspx 
+1. Unknown author. 2017. "What is the Value of Adding a Porch Enclosure to my Outdoor Space?". Patio Enclosures. Available at https://www.patioenclosures.com/what-is-the-value-of-adding-a-porch-enclosure-to-my-outdoor-space.aspx
 2. Backman M. 2019. "Should You Convert Your Garage to Extra Living Space?". millionacres. Available at: https://www.fool.com/millionacres/real-estate-market/home-renovations/should-you-convert-your-garage-extra-living-space/
 3. Unknown author. 2019. "How Your HVAC System Affects Home Value". Big Mountain Air. Available at: https://www.bigmountainair.com/hvac-system-home-value/#:~:text=The%20impact%20of%20HVAC%20on,is%20a%20valuable%20selling%20point
 4. "Can A New HVAC Unit Increase The Overall Value Of Your Home?". Crystal Heating and Cooling. Available at: https://crystalheatingandcooling.com/new-hvac-unit-increase-the-overall-value-of-your-home/
-
-
-
